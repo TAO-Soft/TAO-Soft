@@ -1,0 +1,65 @@
+function [q,alpha]=DeleersExtend_EquationTransport(...
+            q,q_lim1_N,q_lim2_N,q_lim1_M,q_lim2_M,...
+            alpha,alpha_lim1_N,alpha_lim2_N,alpha_lim1_M,alpha_lim2_M)
+
+
+global vh_N vh_M
+global dl  dt  N M
+global h_ Dzeta
+%% Conservation de la masse pour la concentration
+        % pour tout m (de 1:M) sur N
+        % vitesse v_N
+        dq_sm_N(:,1)=max(-vh_N(:,1).*q(:,1)/dl*dt, 0);
+        dq_sm_N(:,2:N)=max(-vh_N(:,1:N-1).*q(:,2:N)/dl*dt, 0);
+        dq_sp_N(:,1:N)=max(vh_N(:,1:N).*q(:,1:N)/dl*dt, 0);
+
+        dq_rm_N(:,1)=max(vh_N(:,1).*q_lim1_N/dl*dt, 0);
+        dq_rm_N(:,2:N)=max(vh_N(:,1:N-1).*q(:,1:N-1)/dl*dt, 0);
+        dq_rp_N(:,1:N-1)=max(-vh_N(:,1:N-1).*q(:,2:N)/dl*dt, 0);
+        dq_rp_N(:,N)=max(-vh_N(:,N).*q_lim2_N/dl*dt, 0);
+
+        % pour tout n (de 1:M) sur M
+        % vitesse u
+        dq_sm_M(1,:)=max(-vh_M(1,:).*q(1,:)/dl*dt, 0);
+        dq_sm_M(2:M,:)=max(-vh_M(1:M-1,:).*q(2:M,:)/dl*dt, 0);
+        dq_sp_M(1:M,:)=max(vh_M(1:M,:).*q(1:M,:)/dl*dt, 0);
+
+        dq_rm_M(1,:)=max(vh_M(1,:).*q_lim1_M/dl*dt, 0);
+        dq_rm_M(2:M,:)=max(vh_M(1:M-1,:).*q(1:M-1,:)/dl*dt, 0);
+        dq_rp_M(1:M-1,:)=max(-vh_M(1:M-1,:).*q(2:M,:)/dl*dt, 0);
+        dq_rp_M(M,:)=max(-vh_M(M,:).*q_lim2_M/dl*dt, 0);
+
+        q=(q.*h_+(dq_rm_M+dq_rp_M-dq_sm_M-dq_sp_M)...
+           +(dq_rm_N+dq_rp_N-dq_sm_N-dq_sp_N))./(h_+Dzeta) ; 
+       
+       
+        %% Conservation de la masse pour l'age de l'eau : alpha
+        % pour tout m (de 1:M) sur N
+        % vitesse v_N
+        dq_sm_N(:,1)=max(-vh_N(:,1).*alpha(:,1)/dl*dt, 0);
+        dq_sm_N(:,2:N)=max(-vh_N(:,1:N-1).*alpha(:,2:N)/dl*dt, 0);
+        dq_sp_N(:,1:N)=max(vh_N(:,1:N).*alpha(:,1:N)/dl*dt, 0);
+
+        dq_rm_N(:,1)=max(vh_N(:,1).*alpha_lim1_N/dl*dt, 0);
+        dq_rm_N(:,2:N)=max(vh_N(:,1:N-1).*alpha(:,1:N-1)/dl*dt, 0);
+        dq_rp_N(:,1:N-1)=max(-vh_N(:,1:N-1).*alpha(:,2:N)/dl*dt, 0);
+        dq_rp_N(:,N)=max(-vh_N(:,N).*alpha_lim2_N/dl*dt, 0);
+
+        % pour tout n (de 1:M) sur M
+        % vitesse u
+        dq_sm_M(1,:)=max(-vh_M(1,:).*alpha(1,:)/dl*dt, 0);
+        dq_sm_M(2:M,:)=max(-vh_M(1:M-1,:).*alpha(2:M,:)/dl*dt, 0);
+        dq_sp_M(1:M,:)=max(vh_M(1:M,:).*alpha(1:M,:)/dl*dt, 0);
+
+        dq_rm_M(1,:)=max(vh_M(1,:).*alpha_lim1_M/dl*dt, 0);
+        dq_rm_M(2:M,:)=max(vh_M(1:M-1,:).*alpha(1:M-1,:)/dl*dt, 0);
+        dq_rp_M(1:M-1,:)=max(-vh_M(1:M-1,:).*alpha(2:M,:)/dl*dt, 0);
+        dq_rp_M(M,:)=max(-vh_M(M,:).*alpha_lim2_M/dl*dt, 0);
+
+        alpha=(alpha.*h_+(dq_rm_M+dq_rp_M-dq_sm_M-dq_sp_M)...
+           +(dq_rm_N+dq_rp_N-dq_sm_N-dq_sp_N))./(h_+Dzeta) + q*dt;
+       
+
+       
+   
+
